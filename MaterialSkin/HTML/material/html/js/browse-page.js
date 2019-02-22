@@ -83,8 +83,9 @@ var lmsBrowse = Vue.component("lms-browse", {
   </v-card-actions>
   </v-card>
  </v-dialog>
- <div v-if="headerTitle" class="subtoolbar noselect">
-  <v-layout v-if="selection.length>0">
+ <div class="subtoolbar noselect" v-if="desktop || headerTitle || showSearch">
+  <v-text-field v-if="!headerTitle && (desktop || showSearch)" box :label="trans.search" prepend-inner-icon="search" clearable v-on:keyup.enter="search($event)" id="lib-search" v-model="libSearch"></v-text-field>
+  <v-layout v-else-if="selection.length>0">
    <v-layout row wrap>
     <v-flex xs12 class="ellipsis subtoolbar-title">{{trans.selectMultiple}}</v-flex>
     <v-flex xs12 class="ellipsis subtoolbar-subtitle subtext">{{selection.length | displaySelectionCount}}</v-flex>
@@ -135,7 +136,7 @@ var lmsBrowse = Vue.component("lms-browse", {
   </div>
  </v-list>
 
- <v-list v-else class="noselect bgnd-cover" v-bind:class="{'lms-list': !headerTitle, 'lms-list-sub': headerTitle}" id="browse-list">
+ <v-list v-else class="noselect bgnd-cover" v-bind:class="{'lms-list': !(desktop || headerTitle || showSearch), 'lms-list-sub': (desktop || headerTitle || showSearch)}" id="browse-list">
   <v-subheader v-if="isTop && pinned.length>0" @click="toggleGroup(GROUP_PINNED)"><v-icon>{{collapsed[GROUP_PINNED] ? 'arrow_right' : 'arrow_drop_down'}}</v-icon>{{ trans.pinned }}</v-subheader>
   <template v-if="isTop" v-for="(item, index) in pinned">
    <v-divider v-if="index>0 && pinned.length>index && !collapsed[GROUP_PINNED]"></v-divider>
@@ -258,14 +259,16 @@ var lmsBrowse = Vue.component("lms-browse", {
             grid: false,
             fetchingItems: false,
             dialog: { show:false, title:undefined, hint:undefined, ok: undefined, cancel:undefined, command:undefined},
-            trans: { ok:undefined, cancel: undefined, selectMultiple:undefined, addall:undefined, playall:undefined, albumRating:undefined },
+            trans: { ok:undefined, cancel: undefined, selectMultiple:undefined, addall:undefined, playall:undefined, albumRating:undefined, search:undefined},
             menu: { show:false, item: undefined, x:0, y:0},
             isTop: true,
             pinned: [],
             libraryName: undefined,
             selection: [],
             collapsed: [false, false, false],
-            showRatingButton: false
+            showRatingButton: false,
+            showSearch: false,
+            libSearch: undefined
         }
     },
     computed: {
@@ -320,6 +323,12 @@ var lmsBrowse = Vue.component("lms-browse", {
                     }.bind(this), 100);
                 } else if (from=='/browse') {
                     this.previousScrollPos = this.scrollElement.scrollTop;
+                }
+            }.bind(this));
+            bus.$on('toggleSearch', function() {
+                this.showSearch=!this.showSearch;
+                if (!this.showSearch) {
+                    this.libSearch = undefined;
                 }
             }.bind(this));
         }
@@ -381,7 +390,8 @@ var lmsBrowse = Vue.component("lms-browse", {
             UNSELECT_ACTION.title=i18n("Un-select");
             RATING_ACTION.title=i18n("Set rating");
             this.trans= { ok:i18n('OK'), cancel: i18n('Cancel'), pinned: i18n('Pinned Items'), selectMultiple:i18n("Select multiple items"),
-                          addall:i18n("Add selection to queue"), playall:i18n("Play selection"), albumRating:i18n("Set rating for all tracks") };
+                          addall:i18n("Add selection to queue"), playall:i18n("Play selection"), albumRating:i18n("Set rating for all tracks"),
+                          search:i18n("Search") };
 
             this.top = [
                 { header: i18n("My Music"), id: TOP_MMHDR_ID, group: GROUP_MY_MUSIC },
@@ -758,6 +768,16 @@ var lmsBrowse = Vue.component("lms-browse", {
                 return;
             }
             this.enteredTerm = event.target._value;
+            if (undefined==this.enteredTerm) {
+                return
+            }
+            this.enteredTerm=this.enteredTerm.trim();
+            if (isEmpty(this.enteredTerm)) {
+                return;
+            }
+            if (undefined==item) {
+                item = { title:this.trans.search, command: ["search"],  params: ["tags:jlyAdt", "extended:1", "term:"+TERM_PLACEHOLDER], id: TOP_SEARCH_ID };
+            }
             this.fetchItems(this.buildCommand(item), item);
         },
         entry(event, item) {
@@ -1357,13 +1377,6 @@ var lmsBrowse = Vue.component("lms-browse", {
             return this.$store.state.serverMenus ? this.serverTop : this.top;
         },
         addExtraItems(list, addMore) {
-            list.push({ title: i18n("Search"),
-                        command: ["search"],
-                        params: ["tags:jlyAdt", "extended:1", "term:"+TERM_PLACEHOLDER],
-                        icon: "search",
-                        type: "search",
-                        group: GROUP_MY_MUSIC,
-                        id: TOP_SEARCH_ID });
             if (addMore) {
                 list.push({ title: i18n("More"),
                             icon: "more_horiz",

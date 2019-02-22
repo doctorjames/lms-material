@@ -281,6 +281,7 @@ function isVisible(elem) {
 }
 
 function ensureVisible(elem, attempt) {
+    console.log(elem);
     elem.scrollIntoView();
     if (!isVisible(elem) && (undefined==attempt || attempt<15)) {
         window.setTimeout(function() {

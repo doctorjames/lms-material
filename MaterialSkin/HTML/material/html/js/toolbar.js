@@ -106,6 +106,9 @@ Vue.component('lms-toolbar', {
   </v-list>
  </v-menu>
  <v-spacer></v-spacer>
+ <v-btn icon :title="trans.search" v-if="!desktop && $route.path=='/browse'" @click.native="bus.$emit('toggleSearch')" class="toolbar-button">
+  <v-icon>search</v-icon>
+ </v-btn>
  <v-btn icon :title="trans.info" v-if="!desktop && infoPlugin && !infoOpen && $route.path=='/nowplaying'" @click.native="bus.$emit('info')" class="toolbar-button">
   <v-icon>info</v-icon>
  </v-btn>
@@ -159,7 +162,7 @@ Vue.component('lms-toolbar', {
                  playerStatus: { ison: 1, isplaying: false, volume: 0, current: { title:undefined, artist:undefined }, sleepTimer: undefined },
                  playerGroups: false,
                  menuItems: [],
-                 trans:{noplayer:undefined, nothingplaying:undefined, synchronise:undefined, info:undefined,
+                 trans:{noplayer:undefined, nothingplaying:undefined, synchronise:undefined, info:undefined, search:undefined,
                         switchoff:undefined, switchon:undefined, showLarge:undefined, hideLarge:undefined},
                  infoOpen: false,
                  largeView: false,
@@ -355,7 +358,8 @@ Vue.component('lms-toolbar', {
             TB_MANAGE_PLAYERS.title=i18n('Manage Players');
             this.menuItems = [ TB_UI_SETTINGS, TB_PLAYER_SETTINGS, TB_SERVER_SETTINGS, TB_INFO ];
             this.trans = {noplayer:i18n('No Player'), nothingplaying:i18n('Nothing playing'), synchronise:i18n('Synchronise'),
-                          info:i18n("Show current track information"), switchoff:i18n('Switch Off'), switchon:i18n('Switch On'),
+                          info:i18n("Show current track information"), search:i18n("Search"),
+                          switchoff:i18n('Switch Off'), switchon:i18n('Switch On'),
                           showLarge:i18n("Expand now playing"), hideLarge:i18n("Collapse now playing")};
         },
         setPlayer(id) {

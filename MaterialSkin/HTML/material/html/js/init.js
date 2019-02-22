@@ -31,7 +31,8 @@ function setAutoLayout(al) {
 }
 
 function checkEntryFocus() {
-    if (isMobileBrowser && (document.activeElement.tagName=="INPUT" || document.activeElement.tagName=="TEXTAREA")) {
+    // TODO: Should really just check search is not in subtoolbar, rather than id
+    if (isMobileBrowser && (document.activeElement.tagName=="INPUT" || document.activeElement.tagName=="TEXTAREA") && document.activeElement.id!="lib-search") {
         ensureVisible(document.activeElement);
     }
 }

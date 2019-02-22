@@ -781,3 +781,13 @@ div.v-subheader {
     cursor: pointer;
 }
 
+.subtoolbar .v-text-field {
+    margin: -6px -10px 0px -2px;  /* t, r, b, l */
+}
+
+.subtoolbar .theme--dark.v-text-field--box.v-text-field--box.v-input--is-focused .v-input__slot,
+.subtoolbar .theme--dark.v-text-field--box.v-text-field--box .v-input__slot,
+.subtoolbar .theme--light.v-text-field--box.v-text-field--box.v-input--is-focused .v-input__slot,
+.subtoolbar .theme--light.v-text-field--box.v-text-field--box .v-input__slot {
+    background: transparent;
+}
